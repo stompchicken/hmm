@@ -82,7 +82,7 @@ class HiddenMarkovModel(object):
         return dict(zip(self.symbols, self._emission[:, i].tolist()))
 
     def __repr__(self):
-        return "<%s %d states, %d symbols>" % (self.__name__, self.N, self.M)
+        return "<%s %d states, %d symbols>" % (self.__class__.__name__, self.N, self.M)
 
 
 def create_from_data(states, symbols, tagged_data):

@@ -3,6 +3,7 @@ from nose.tools import assert_equals
 import hmm
 import numpy as np
 
+
 def test_hmm_default():
     model = hmm.HiddenMarkovModel(["1", "2"], ["A", "B", "C", "D"])
     assert model
@@ -45,4 +46,3 @@ def test_create_from_random():
     model = hmm.create_from_random(states, symbols, transition_dist, emission_dist)
     assert(model)
     assert(model.is_valid())
-
