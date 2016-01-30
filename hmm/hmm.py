@@ -13,12 +13,20 @@ class HiddenMarkovModel(object):
         Creates an HMM with N hidden states and M emission symbols.
         All transition and emission probabilities are created equal
         """
+        if len(states) == 0:
+            raise ValueError("Must have at least one state")
+
+        if len(states) != len(set(states)):
+            raise ValueError("Cannot have duplicate states")
+
+        if len(symbols) == 0:
+            raise ValueError("Must have at least one symbol")
+
+        if len(symbols) != len(set(symbols)):
+            raise ValueError("Cannot have duplicate symbols")
+
         self.states = states
         self.symbols = symbols
-
-        # TODO: Assert unique states and symbols
-        # TODO: Assert non-zero size of states and symbols
-
         self.N = len(states)
         self.M = len(symbols)
 
@@ -36,12 +44,11 @@ class HiddenMarkovModel(object):
 
     def is_valid(self):
         return is_prob_density(self._initial) \
-               and is_prob_density(self._transition) \
-               and is_prob_density(self._emission)
+            and is_prob_density(self._transition) \
+            and is_prob_density(self._emission)
 
     def normalise(self):
         """Normalise probability distributions to sum to unity"""
-        # TODO: check for divide by zero
         self._initial /= np.sum(self._initial, axis=0, keepdims=True)
         self._transition /= np.sum(self._transition, axis=0, keepdims=True)
         self._emission /= np.sum(self._emission, axis=0, keepdims=True)
@@ -98,7 +105,7 @@ def create_from_data(states, symbols, tagged_data):
                 model._initial[z] += 1.0
                 model._emission[y][z] += 1.0
             else:
-                z1 = model.state_to_index(seq[i-1][0])
+                z1 = model.state_to_index(seq[i - 1][0])
                 model._transition[z1][z] += 1.0
                 model._emission[y][z] += 1.0
 
@@ -118,14 +125,14 @@ def create_from_random(states, symbols, transition_dist, emission_dist):
     model.zero()
 
     # Initial probabilities
-    model._initial[:,0] = transition_dist(N)
+    model._initial[:, 0] = transition_dist(N)
 
     # Transition probabilities
     for z in range(N):
-        model._transition[:,z] = transition_dist(N)
+        model._transition[:, z] = transition_dist(N)
 
     # Emission probabilities
     for y in range(N):
-        model._emission[:,y] = emission_dist(M)
+        model._emission[:, y] = emission_dist(M)
 
     return model
