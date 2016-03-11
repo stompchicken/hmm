@@ -32,7 +32,11 @@ class HiddenMarkovModel(object):
 
         # We store transition probabilities as column vectors
         self._initial = np.ones((self.N, 1))
+
+        # transition[i, j] = p(z2=j|z1=i)
         self._transition = np.ones((self.N, self.N))
+
+        # emission[i,j] -> p(y=i,z=j)
         self._emission = np.ones((self.M, self.N))
         self.normalise()
 
@@ -60,6 +64,10 @@ class HiddenMarkovModel(object):
                 return i
         return -1
 
+    def index_to_state(self, i):
+        """Map internal index to hidden state"""
+        return self.states[i]
+
     def symbol_to_index(self, symbol):
         """Map emission symbol to internal index"""
         for i, s in enumerate(self.symbols):
@@ -67,19 +75,43 @@ class HiddenMarkovModel(object):
                 return i
         return -1
 
+    def index_to_symbol(self, i):
+        """Map internal index to emission symbol"""
+        return self.symbols[i]
+
     def initial(self):
         """Return dictionary mapping initial hidden states to probabilties"""
         return dict(zip(self.states, self._initial[:, 0].tolist()))
+
+    def set_initial(self, values):
+        """Set initial distribution from dictionary of states to probabilities"""
+        for key, value in values.items():
+            i = self.state_to_index(key)
+            self._initial[i, 0] = value
 
     def transition(self, state):
         """Return dictionary mapping next hidden states to probabilties"""
         i = self.state_to_index(state)
         return dict(zip(self.states, self._transition[:, i].tolist()))
 
+    def set_transition(self, state, values):
+        """Set transition distribution for a state from dictionary of states to probabilities"""
+        i = self.state_to_index(state)
+        for key, value in values.items():
+            j = self.state_to_index(key)
+            self._transition[i, j] = value
+
     def emission(self, state):
         """Return dictionary mapping emission symbols to probabilties"""
         i = self.state_to_index(state)
         return dict(zip(self.symbols, self._emission[:, i].tolist()))
+
+    def set_emission(self, state, values):
+        """Set emission distribution for a state from dictionary of symbols to probabilities"""
+        i = self.state_to_index(state)
+        for key, value in values.items():
+            j = self.symbol_to_index(key)
+            self._emission[j, i] = value
 
     def __repr__(self):
         return "<%s %d states, %d symbols>" % (self.__class__.__name__, self.N, self.M)
