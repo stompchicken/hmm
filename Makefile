@@ -1,7 +1,13 @@
-all: lint build
+all: lint test install
 
 lint:
-	flake8 hmm/*.py tests/*.py
+	env/bin/flake8 hmm/*.py tests/*.py
 
-build:
+test:
 	env/bin/nosetests tests
+
+install:
+	env/bin/pip install -e .
+
+notebook:
+	env/bin/jupyter notebook --notebook-dir=docs

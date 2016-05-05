@@ -30,8 +30,7 @@ class HiddenMarkovModel(object):
         self.N = len(states)
         self.M = len(symbols)
 
-        # We store transition probabilities as column vectors
-        self._initial = np.ones((self.N, 1))
+        self._initial = np.ones((self.N))
 
         # transition[i, j] = p(z2=j|z1=i)
         self._transition = np.ones((self.N, self.N))
@@ -47,7 +46,7 @@ class HiddenMarkovModel(object):
         self._emission = np.zeros(self._emission.shape)
 
     def is_valid(self):
-        return is_prob_density(self._initial) \
+        return np.sum(self._initial) == 1.0 \
             and is_prob_density(self._transition) \
             and is_prob_density(self._emission)
 
@@ -81,13 +80,13 @@ class HiddenMarkovModel(object):
 
     def initial(self):
         """Return dictionary mapping initial hidden states to probabilties"""
-        return dict(zip(self.states, self._initial[:, 0].tolist()))
+        return dict(zip(self.states, self._initial.tolist()))
 
     def set_initial(self, values):
         """Set initial distribution from dictionary of states to probabilities"""
         for key, value in values.items():
             i = self.state_to_index(key)
-            self._initial[i, 0] = value
+            self._initial[i] = value
 
     def transition(self, state):
         """Return dictionary mapping next hidden states to probabilties"""
@@ -157,7 +156,7 @@ def create_from_random(states, symbols, transition_dist, emission_dist):
     model.zero()
 
     # Initial probabilities
-    model._initial[:, 0] = transition_dist(N)
+    model._initial = transition_dist(N)
 
     # Transition probabilities
     for z in range(N):
